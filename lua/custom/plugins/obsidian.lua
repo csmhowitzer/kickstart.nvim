@@ -70,7 +70,8 @@ return {
     --   title = 'Hi Mom',
     -- })
     -- vim.api.nvim_buf_set_keymap(win, 'n', '-', '<CMD>ObsidianNew<CR>', { desc = 'Open new obsidian note' })
-    vim.keymap.set('n', '-', '<CMD>ObsidianNew<CR>', { desc = 'Open new Obsidian note' })
+    vim.keymap.set('n', '-', '<CMD>ObsidianNew<CR>', { desc = 'Open [N]ew Obsidian note' })
     vim.keymap.set('n', '-t', '<CMD>ObsidianToday<CR>', { desc = 'Opens a new Obsidian daily for [T]oday' })
+    vim.keymap.set('n', '-s', '<CMD>ObsidieanSearch<CR>', { desc = 'Obsidiean [S]earch' })
   end,
 }
