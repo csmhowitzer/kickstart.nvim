@@ -1,19 +1,3 @@
--- return {
---   {
---     'epwalsh/obsidian.nvim',
---     dependencies = { 'nvim-lua/plenary.nvim' },
---     version = '*',
---     lazy = true,
---     ft = 'markdown',
---     --opts = {
---     --  workspaces = {
---     --    name = 'personal',
---     --    path = '~/LocalDocs/TheAbyss',
---     --  },
---     --},
---   },
--- }
-
 return {
   'epwalsh/obsidian.nvim',
   version = '*', -- recommended, use latest release instead of latest commit
@@ -60,18 +44,17 @@ return {
       -- see below for full list of options 👇
     }
     opt.conceallevel = 1
-    -- local buf = vim.api.nvim_create_buf(false, true)
-    -- local win = vim.api.nvim_open_win(buf, false, {
-    --   row = 0,
-    --   col = 0,
-    --   width = 40,
-    --   height = 50,
-    --   style = 'minimal',
-    --   title = 'Hi Mom',
-    -- })
-    -- vim.api.nvim_buf_set_keymap(win, 'n', '-', '<CMD>ObsidianNew<CR>', { desc = 'Open new obsidian note' })
-    vim.keymap.set('n', '-', '<CMD>ObsidianNew<CR>', { desc = 'Open [N]ew Obsidian note' })
+    --local builtin = require 'obsidian.Client'
+    -- The below is what works, trying another way
+    vim.keymap.set('n', '--', '<CMD>ObsidianNew<CR>', { desc = 'Open [N]ew Obsidian note' })
+    -- vim.keymap.set('n', '-', builtin.command('ObsidianNew', vim.fn.input 'Name: '), { desc = 'Open [N]ew Obsidian note' })
     vim.keymap.set('n', '-t', '<CMD>ObsidianToday<CR>', { desc = 'Opens a new Obsidian daily for [T]oday' })
-    vim.keymap.set('n', '-s', '<CMD>ObsidieanSearch<CR>', { desc = 'Obsidiean [S]earch' })
+    vim.keymap.set('n', '-s', '<CMD>ObsidianSearch<CR>', { desc = 'Obsidian [S]earch' })
+    vim.keymap.set('n', '-w', '<CMD>ObsidianWorkspace<CR>', { desc = 'Obsidian Select [W]orkspace' })
+    -- Also, hitting <CR> on any line in Normal mode will do this
+    vim.keymap.set('n', '-c', '<CMD>ObsidianToggleCheckbox<CR>', { desc = 'Obsidian Toggle [C]heckbox' })
+    vim.keymap.set('v', '<leader>l', '<CMD>ObsidianLink<CR>', { desc = 'Obsidian [L]ink' })
+    vim.keymap.set('v', '<leader>ln', '<CMD>ObsidianLinkNew<CR>', { desc = 'Obsidian [L]ink [N]ew' })
+    vim.keymap.set('v', '-e', '<CMD>ObsidianExtractNote<CR>', { desc = 'Obsidian [E]xtract Note' })
   end,
 }

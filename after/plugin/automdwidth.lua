@@ -7,7 +7,7 @@ vim.api.nvim_create_autocmd({ 'BufEnter' }, {
   }),
   pattern = '*.md',
   callback = function()
-    local width = 20
+    local width = 80
     local bufnr = vim.api.nvim_get_current_buf()
     print('Markdown file bufnr: ' .. bufnr .. ' cw: ' .. width)
     vim.api.nvim_buf_set_option(bufnr, 'colorcolumn', tostring(width))

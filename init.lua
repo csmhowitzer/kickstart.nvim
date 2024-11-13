@@ -770,13 +770,20 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
-        csharp = { 'csharpier' },
+        cs = { 'csharpier' },
+        json = { 'fixjson', 'deno_fmt', 'jsonnetfmt', 'yq' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.
         -- javascript = { { "prettierd", "prettier" } },
+      },
+      formatters = {
+        csharpier = {
+          command = '/Users/brandonholbert/.dotnet/tools/dotnet-csharpier',
+          exe = '/Users/brandonholbert/.dotnet/tools/dotnet-csharpier',
+        },
       },
     },
   },
@@ -986,18 +993,21 @@ require('lazy').setup({
   -- PASSED: passed test
   -- FAILED: failed test
   -- IDEA: This is an idea!
+  -- CONF: This is configuration info
+  -- CONFIG: Also config info
   {
     'folke/todo-comments.nvim',
     event = 'VimEnter',
     dependencies = { 'nvim-lua/plenary.nvim' },
     opts = {
-      signs = false,
+      signs = false, -- do we show the icons in the sign column?
       colors = {
         default = { '#C970FF' },
         test = { '#FFC878' },
       },
       keywords = {
         IDEA = { icon = ' ', color = 'info' },
+        CONFIG = { icon = ' ', color = '#5454FF', alt = { 'CONF' } },
       },
     },
   },
@@ -1045,7 +1055,7 @@ require('lazy').setup({
     dependencies = { 'nvim-treesitter/playground', 'p00f/nvim-ts-rainbow' },
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc', 'diff', 'luadoc', 'markdown_inline', 'query', 'c_sharp' },
+      ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc', 'diff', 'luadoc', 'markdown_inline', 'query', 'c_sharp', 'json' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {

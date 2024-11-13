@@ -8,6 +8,7 @@ return {
         keymaps = {
           ['<C-h>'] = false,
           ['<M-h>'] = 'actions.select_split',
+          ['-'] = false,
         },
         view_options = {
           show_hidden = true,
@@ -16,7 +17,7 @@ return {
       -- Open parent directory in current window
       vim.keymap.set('n', '<leader>pv', '<CMD>Oil<CR>', { desc = 'Open parent directory' })
       -- Open parent directory in floating window
-      vim.keymap.set('n', '<space>-', require('oil').toggle_float)
+      vim.keymap.set('n', '<space>pf', require('oil').toggle_float)
     end,
   },
 }
