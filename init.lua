@@ -197,6 +197,8 @@ vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
 vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
 vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
+-- INFO: Currently overwritten by tmux navigator and harpoon
+--
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
 --
@@ -206,9 +208,9 @@ vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 -- vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 -- vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
---  NOTE:  yes this is a note
--- [[ Custom Keybinds ]]
-vim.keymap.set('n', '<leader>pv', vim.cmd.Ex) -- vim's file explorer
+-- CONF: [[ Custom Keybinds ]]
+--
+--vim.keymap.set('n', '<leader>pv', vim.cmd.Ex) -- vim's file explorer, overwritten by oil.nvim
 vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv") -- ALT move down selected text
 vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv") -- ALT move up selected text
 
@@ -225,10 +227,12 @@ vim.keymap.set('x', '<leader>p', '"_dP') -- overwrite highlighted word from buff
 vim.keymap.set('i', '<C-c>', '<Esc>')
 vim.keymap.set('v', '<C-c>', '<Esc>')
 
-vim.keymap.set('n', '<leader>s', [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
+-- faster searching if you have the cursor over the search word
+vim.keymap.set('n', '<leader>s', [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = '[S]earch for cursor word' })
 vim.keymap.set('n', '<leader>x', '<cmd>!chmod +x %<CR>', { silent = true })
 
-vim.keymap.set('n', '<leader>ys', '<cmd>source ~/.config/nvim/after/plugin/luasnip.lua<CR>') -- need to update this keybind
+vim.keymap.set('n', '<leader>ys', '<cmd>source %<CR>', { desc = '[S]ource file' })
+vim.keymap.set('n', '<leader>hb', '<cmd>bp<CR>', { desc = '[P]revious [B]uffer' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -381,6 +385,8 @@ require('lazy').setup({
         { '<M-r>', group = 'Harpoon [R]emove Item' },
         { '<M-c>', group = 'Harpoon Clear List' },
       },
+      --sort = { 'case', 'alphanum', 'local', 'order', 'group', 'mod' },
+      --sort = { 'case', 'alphanum', 'local' },
     },
   },
 

@@ -70,6 +70,60 @@ local ns = vim.api.nvim_create_namespace 'live-tests'
 local group = vim.api.nvim_create_augroup('AutoTest', { clear = true })
 local hl_group = vim.api.nvim_set_hl(ns, 'PassedTest', { fg = '#2ECC71', italic = true })
 
+local output_process = function(bufnr, state, data)
+  if not data then
+    print 'no output text to parse through'
+    return
+  end
+
+  -- INFO: need to remove odd chars added when grabbing the result from the test output
+  local s = vim.inspect(data)
+  local sub1 = string.sub(s, 7)
+  local len = string.len(sub1)
+  local sub2 = string.sub(sub1, 1, len - 9)
+
+  local decoded = vim.json.decode(sub2)
+  if decoded.results.tests ~= {} then
+    for _, t in pairs(decoded.results.tests) do
+      -- this is where we parse through the decoded lua table
+      add_csharp_test(state, t)
+      add_csharp_output(state, t)
+      mark_success(state, t)
+      local test = state.tests[make_key(t)]
+      if test.success and test.line then
+        local flavor = '\t  ' .. test.dur .. 'ms'
+        local text = { flavor, 'String' }
+        local opts = {
+          virt_text = { text },
+        }
+        vim.api.nvim_buf_set_extmark(bufnr, ns, test.line, 0, opts)
+      end
+    end
+  else
+    error('Failed to handle' .. vim.inspect(data))
+  end
+end
+
+local output_exit = function(bufnr, state)
+  local failed = {}
+  for _, t in pairs(state.tests) do
+    if t.line then
+      if not t.success then
+        table.insert(failed, {
+          bufnr = bufnr,
+          lnum = t.line,
+          col = 0,
+          severity = vim.diagnostic.severity.ERROR,
+          source = 'cs-test',
+          message = 'Test Failed ' .. t.dur .. 'ms',
+          user_data = {},
+        })
+      end
+    end
+  end
+  vim.diagnostic.set(ns, bufnr, failed, {})
+end
+
 local attach_to_buffer = function(bufnr, command)
   local state = {
     bufnr = bufnr,
@@ -90,6 +144,9 @@ local attach_to_buffer = function(bufnr, command)
     callback = function()
       vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
 
+      local path = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':h') -- get bufnr dir path
+      vim.api.nvim_set_current_dir(path)
+
       state = {
         bufnr = bufnr,
         tests = {},
@@ -98,56 +155,10 @@ local attach_to_buffer = function(bufnr, command)
       vim.fn.jobstart(command, {
         stdout_buffered = true,
         on_stdout = function(_, data)
-          if not data then
-            print 'no output text to parse through'
-            return
-          end
-
-          -- INFO: need to remove odd chars added when grabbing the result from the test output
-          local s = vim.inspect(data)
-          local sub1 = string.sub(s, 7)
-          local len = string.len(sub1)
-          local sub2 = string.sub(sub1, 1, len - 9)
-
-          local decoded = vim.json.decode(sub2)
-          if decoded.results.tests ~= {} then
-            for _, t in pairs(decoded.results.tests) do
-              -- this is where we parse through the decoded lua table
-              add_csharp_test(state, t)
-              add_csharp_output(state, t)
-              mark_success(state, t)
-              local test = state.tests[make_key(t)]
-              if test.success and test.line then
-                local flavor = '\t  ' .. test.dur .. 'ms'
-                local text = { flavor, 'String' }
-                local opts = {
-                  virt_text = { text },
-                }
-                vim.api.nvim_buf_set_extmark(bufnr, ns, test.line, 0, opts)
-              end
-            end
-          else
-            error('Failed to handle' .. vim.inspect(data))
-          end
+          output_process(bufnr, state, data)
         end,
         on_exit = function()
-          local failed = {}
-          for _, t in pairs(state.tests) do
-            if t.line then
-              if not t.success then
-                table.insert(failed, {
-                  bufnr = bufnr,
-                  lnum = t.line,
-                  col = 0,
-                  severity = vim.diagnostic.severity.ERROR,
-                  source = 'cs-test',
-                  message = 'Test Failed ' .. t.dur .. 'ms',
-                  user_data = {},
-                })
-              end
-            end
-          end
-          vim.diagnostic.set(ns, bufnr, failed, {})
+          output_exit(bufnr, state)
         end,
       })
     end,

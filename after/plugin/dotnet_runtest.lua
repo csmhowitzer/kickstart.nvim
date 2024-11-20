@@ -1,0 +1,12 @@
+-- NOTE: This will be a more surgical strike compared to the auto test runner
+-- We will want to be able to pass all tests in a file (via filename) to send
+-- through the test runner
+-- OR
+-- We want to be able to send the current test that our cursor line is within.
+-- This will mimic the usage I had with Visual Studio.
+-- This will end up augmenting the autotestrunner.lua funcitonality
+--  The thought would be we are essentially allowing to pass in the command that
+--  we want to run.
+--  - We will NEVER apply a single test to the test on save behavior
+--  - We will allow for the test on save at a file level, as it really is only
+--  a visual feature
