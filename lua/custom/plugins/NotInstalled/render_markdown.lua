@@ -1,3 +1,7 @@
+-- NOTE: This is not installed because Obsidian is installed
+--       I haven't seen conflicts yet, but seems there are some.
+--       Also, this plugin doesn't force show the transparent background
+--       Will look back at this in the future
 return {
   -- {
   --   'MeanderingProgrammer/render-markdown.nvim',

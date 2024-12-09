@@ -63,7 +63,7 @@ return {
       -- see below for full list of options 👇
     }
 
-    opt.conceallevel = 1
+    opt.conceallevel = 2
     --local builtin = require 'obsidian.Client'
     -- The below is what works, trying another way
     vim.keymap.set('n', '--', '<CMD>ObsidianNew<CR>', { desc = 'Open [N]ew Obsidian note' })

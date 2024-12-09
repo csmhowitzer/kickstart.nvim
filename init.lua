@@ -1023,8 +1023,11 @@ require('lazy').setup({
     config = function()
       -- Better Around/Inside textobjects
       --
+      local f = function()
+        -- something to do in here
+      end
       -- Examples:
-      --  - va)  - [V]isually select [A]round [)]paren
+      --  - va)  - [kVk]isually select [A]round [)]paren
       --  - yinq - [Y]ank [I]nside [N]ext [']quote
       --  - ci'  - [C]hange [I]nside [']quote
       require('mini.ai').setup { n_lines = 500 }
