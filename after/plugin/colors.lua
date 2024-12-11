@@ -1,9 +1,14 @@
+-- will want to update this to auto run on load rather than functions to call
+
 function ToggleThru()
   -- we want to change transparent background
 
   vim.api.nvim_set_hl(0, 'Normal', { bg = 'none' })
   vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'none' })
   vim.api.nvim_set_hl(0, 'TelescopeNormal', { bg = 'none' })
+  vim.api.nvim_set_hl(0, 'LineNrAbove', { fg = '#6078A0' })
+  -- vim.api.nvim_set_hl(0, 'CursorLineNr', )
+  vim.api.nvim_set_hl(0, 'LineNrBelow', { fg = '#6078A0' })
 end
 
 function ToggleDark()
