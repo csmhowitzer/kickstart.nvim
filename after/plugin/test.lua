@@ -27,11 +27,20 @@
 --
 
 function TestMe()
-  local dap_file = vim.fn.exepath 'netcoredbg'
-  local test = vim.fn.exepath 'dotnet'
-  if dap_file ~= '' then
-    print(test)
-  else
-    print 'nothing found'
-  end
+  -- local dap_file = vim.fn.exepath 'netcoredbg'
+  -- local test = vim.fn.exepath 'dotnet'
+  -- if dap_file ~= '' then
+  --   print(test)
+  -- else
+  --   print 'nothing found'
+  -- end
+  local bufnr = vim.api.nvim_get_current_buf()
+  local path = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':h') -- get bufnr dir path
+  path = '/Users/wwmac/Documents/projects/examples/csharp/Kata/SimpleSetup/SimpleSetupRunner/Program.cs'
+  local root = vim.fs.root(path, function(name, path)
+    return name:match '%.csproj$' ~= nil
+  end)
+  print(bufnr)
+  print(path)
+  print(root)
 end

@@ -457,6 +457,7 @@ require('lazy').setup({
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
           },
+          fzf = {},
         },
       }
 
@@ -499,6 +500,34 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sn', function()
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
+
+      -- Shortcut for searching your neovim package files (i.e. plugins)
+      vim.keymap.set('n', '<leader>sp', function()
+        ---@diagnostic disable-next-line
+        builtin.find_files { cwd = vim.fs.joinpath(vim.fn.stdpath 'data', 'lazy') }
+      end, { desc = '[S]earch [P]lugin files' })
+
+      -- Shortcut for searching only from the root of a project (currently only csharp)
+      -- TODO: add lang support for Go, ReactJS, etc...
+      vim.keymap.set('n', '<leader>fp', function()
+        local conf = {
+          opts = require('telescope.themes').get_ivy(),
+          isProj = true,
+          isSln = false,
+        }
+        require('config.telescope.multigrep').setup(conf)
+      end, { desc = '[F]ind [P]roject files' })
+
+      -- Shortcut for sarching only form the root of a csharp solution
+      -- TODO: add lang secondary root (like go environments)
+      vim.keymap.set('n', '<leader>fs', function()
+        local conf = {
+          opts = require('telescope.themes').get_ivy(),
+          isProj = false,
+          isSln = true,
+        }
+        require('config.telescope.multigrep').setup(conf)
+      end, { desc = '[F]ind [S]olution files' })
     end,
   },
 
