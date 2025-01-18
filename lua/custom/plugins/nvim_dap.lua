@@ -1,7 +1,15 @@
+-- TODO: Maybe making it too difficult to allow a choice to find the dll to bind to
+-- but would like the debugger to run and know the dll to use
+-- best approach probably would be no user input, as that is how it is in other tools
+
+--return {}
+--arm64 is the M1 chip; which this machine has
+--not needed for laptop, maybe make this a choice?
 return {
   {
-    'mfussenegger/nvim-dap',
+    'Cliffback/netcoredbg-macOS-arm64.nvim',
     dependencies = {
+      'mfussenegger/nvim-dap',
       'leoluz/nvim-dap-go',
       'rcarriga/nvim-dap-ui',
       'theHamsta/nvim-dap-virtual-text',
@@ -9,6 +17,7 @@ return {
       'williamboman/mason.nvim',
       'folke/neodev.nvim',
     },
+
     config = function()
       local dap = require 'dap'
       local ui = require 'dapui'
@@ -84,8 +93,8 @@ return {
           indent = 1,
         },
       }
-      require('dap-go').setup()
 
+      require('dap-go').setup()
       require('nvim-dap-virtual-text').setup { enabled = true }
 
       -- Handled by nvim-dap-go
@@ -101,8 +110,6 @@ return {
       -- Credit for setup
       -- https://aaronbos.dev/posts/debugging-csharp-neovim-nvim-dap
       -- Also TJ's video
-      --
-      -- NOTE: hi
 
       local coreclr = vim.fn.exepath 'netcoredbg'
       local dotnet = vim.fn.exepath 'dotnet'
@@ -111,45 +118,85 @@ return {
       local currentNetVer = ''
       local projName = ''
 
-      local getProjName = function()
-        if projName == '' then
-          projName = vim.fn.input 'Startup ProjName: '
-          return projName
-        else
-          return projName
-        end
-      end
-      local getWorkspace = function()
-        if workspace == '' then
-          workspace = vim.fn.input('Workspace: ', vim.fn.getcwd() .. '/', 'file')
-          return workspace
-        else
-          return workspace
-        end
-      end
-      local getNetVer = function()
-        currentNetVer = 'net8.0'
-        return currentNetVer
-      end
+      -- Prompts the user to provide the name of the project
+      -- C# / .NET specific if you have a solution set up
+      -- Specifically asking for the project that the debugger should start from
+      -- local getProjName = function()
+      --   if projName == '' then
+      --     projName = vim.fn.input 'Startup ProjName: '
+      --     return projName
+      --   else
+      --     return projName
+      --   end
+      -- end
+
+      -- Prompts the user to provide the workspace name for the project
+      -- this would be the root file of the solution
+      -- Again, in a .NET setup
+      -- local getWorkspace = function()
+      --   if workspace == '' then
+      --     workspace = vim.fn.input('Workspace: ', vim.fn.getcwd() .. '/', 'file')
+      --     return workspace
+      --   else
+      --     return workspace
+      --   end
+      -- end
+
+      -- just a placeholder func to get the name of the folder for the .NET
+      -- version.
+      -- This is needed in modern .NET proj's to find the binaries
+      -- local getNetVer = function()
+      --   currentNetVer = 'net8.0'
+      --   return currentNetVer
+      -- end
+
+      -- Piece everything together
+      -- Workspace path (cwd basically)
+      -- .NET version
+      -- Project Name (startup proj)
+      -- local getDLLPath = function()
+      --   if workspace == '' then
+      --     getWorkspace()
+      --   end
+      --   if currentNetVer == '' then
+      --     getNetVer()
+      --   end
+      --   if projName == '' then
+      --     getProjName()
+      --   end
+      --   local str = workspace .. projName .. '/bin/Debug/' .. currentNetVer .. '/' .. projName .. '.dll'
+      --   print('DAP attaching to: ' .. str)
+      --   return str
+      -- end
+
+      -- Shortcut for searching only from the root of a project (currently only csharp)
+      -- TODO: add lang support for Go, ReactJS, etc...
       local getDLLPath = function()
-        if workspace == '' then
-          getWorkspace()
-        end
-        if currentNetVer == '' then
-          getNetVer()
-        end
-        if projName == '' then
-          getProjName()
-        end
-        return workspace .. 'bin/Debug/' .. currentNetVer .. '/' .. projName .. '.dll'
+        local conf = {
+          opts = require('telescope.themes').get_dropdown(),
+          isProj = false,
+          isSln = false,
+          isDll = true,
+        }
+        require('config.telescope.multigrep').setup(conf)
       end
+
+      local getWorkspace = function()
+        local conf = {
+          opts = require('telescope.themes').get_dropdown(),
+          isProj = false,
+          isSln = true,
+          isDll = false,
+        }
+        require('config.telescope.multigrep').setup(conf)
+      end
+
       if coreclr ~= '' and dotnet ~= '' then
         dap.adapters.coreclr = {
           type = 'executable',
           command = coreclr,
           args = { '--interpreter=vscode' },
         }
-
         dap.configurations.cs = {
           {
             type = 'coreclr',
@@ -160,7 +207,9 @@ return {
             --this may be needed for api type of configuration
             --args = { '/p:EnvironmentName=Development', '--urls=http://localhost:5004', '--environment=Development' },
             program = function()
-              return getDLLPath()
+              local path = getDLLPath()
+              print('DLL Path: ' .. path)
+              return path
             end,
             env = {
               ASPNETCORE_ENVIRONMENT = function()
@@ -168,7 +217,9 @@ return {
               end,
             },
             cwd = function()
-              return getWorkspace()
+              local wd = getWorkspace()
+              print('WD: ' .. wd)
+              return wd
             end,
           },
           --   {

@@ -18,6 +18,13 @@ local find_sln_root = function(path)
   end)
 end
 
+local find_dap_dll = function(path)
+  assert(path ~= nil, 'invalid path provided')
+  return vim.fs.root(path, function(name)
+    return name:match '%.dll$' ~= nil
+  end)
+end
+
 local get_cwd = function(config)
   -- add more opts if we want to support diff project constraints
   local bufnr = vim.api.nvim_get_current_buf()
@@ -26,6 +33,8 @@ local get_cwd = function(config)
     return find_proj_root(bufname)
   elseif config.isSln then
     return find_sln_root(bufname)
+  elseif config.isDll then
+    return find_dap_dll(bufname)
   else
     return vim.uv.cwd()
   end
@@ -37,6 +46,8 @@ local get_title = function(config)
     title = 'Solution Grep'
   elseif config.isProj then
     title = 'Project Grep'
+  elseif config.isDll then
+    title = 'DLL Grep'
   end
   return title
 end
@@ -89,6 +100,7 @@ M.setup = function(opts)
     opts = opts.opts,
     isProj = opts.isProj,
     isSln = opts.isSln,
+    isDll = opts.isDll,
     cwd = '',
   }
   live_multigrep(config)
