@@ -7,7 +7,9 @@
 --not needed for laptop, maybe make this a choice?
 return {
   {
-    'Cliffback/netcoredbg-macOS-arm64.nvim',
+    -- Mac Mini only
+    --'Cliffback/netcoredbg-macOS-arm64.nvim',
+    'mfussenegger/nvim-dap',
     dependencies = {
       'mfussenegger/nvim-dap',
       'leoluz/nvim-dap-go',
