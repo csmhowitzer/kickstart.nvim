@@ -1,10 +1,18 @@
--- TODO: Maybe making it too difficult to allow a choice to find the dll to bind to
--- but would like the debugger to run and know the dll to use
--- best approach probably would be no user input, as that is how it is in other tools
+-- CONFIG: M1 chip on MAC-mini needs a differnt config
+-- uncomment the first github plugin
+-- comment out the next one
 
---return {}
---arm64 is the M1 chip; which this machine has
---not needed for laptop, maybe make this a choice?
+-- INFO: Currently works with the version of netcoredbg on laptop
+-- DID NOT seem to work when building from scratch (again).
+-- DIT NOT seem to work when cloning repo from the samsung repo
+--
+-- INFO: Currently works for SLN only setups with the auto 'dll-getter'
+--
+-- TODO: get non-sln files to work
+--       get MAC-mini working
+--       auto switch config (maybe)
+--       change background color for debug line
+
 return {
   {
     -- Mac Mini only
@@ -114,6 +122,7 @@ return {
       -- Also TJ's video
 
       local coreclr = vim.fn.exepath 'netcoredbg'
+      print(coreclr)
       local dotnet = vim.fn.exepath 'dotnet'
 
       local workspace = ''
@@ -167,30 +176,44 @@ return {
       --     getProjName()
       --   end
       --   local str = workspace .. projName .. '/bin/Debug/' .. currentNetVer .. '/' .. projName .. '.dll'
-      --   print('DAP attaching to: ' .. str)
       --   return str
       -- end
 
       -- Shortcut for searching only from the root of a project (currently only csharp)
       -- TODO: add lang support for Go, ReactJS, etc...
-      local getDLLPath = function()
-        local conf = {
-          opts = require('telescope.themes').get_dropdown(),
-          isProj = false,
-          isSln = false,
-          isDll = true,
-        }
-        require('config.telescope.multigrep').setup(conf)
+      -- local getDLLPath = function()
+      --   local conf = {
+      --     opts = require('telescope.themes').get_dropdown(),
+      --     isProj = false,
+      --     isSln = false,
+      --     isDll = true,
+      --   }
+      --   require('config.telescope.multigrep').setup(conf)
+      -- end
+
+      local find_sln_root = function()
+        local bufnr = vim.api.nvim_get_current_buf()
+        local bufPath = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':h')
+        vim.api.nvim_set_current_dir(bufPath)
+        return vim.fs.root(bufPath, function(name)
+          return name:match '%.sln$' ~= nil
+        end)
       end
 
-      local getWorkspace = function()
-        local conf = {
-          opts = require('telescope.themes').get_dropdown(),
-          isProj = false,
-          isSln = true,
-          isDll = false,
-        }
-        require('config.telescope.multigrep').setup(conf)
+      local find_proj_root = function()
+        local bufnr = vim.api.nvim_get_current_buf()
+        local bufPath = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':h')
+        vim.api.nvim_set_current_dir(bufPath)
+        return vim.fs.root(bufPath, function(name)
+          return name:match '%.csproj$' ~= nil
+        end)
+      end
+
+      local find_dap_dll = function()
+        local path = find_proj_root()
+        local dllName = vim.fn.fnamemodify(path, ':t') .. '.dll'
+        local result = vim.fs.find({ dllName }, { limit = 1, path = path })
+        return result[1]
       end
 
       if coreclr ~= '' and dotnet ~= '' then
@@ -209,9 +232,7 @@ return {
             --this may be needed for api type of configuration
             --args = { '/p:EnvironmentName=Development', '--urls=http://localhost:5004', '--environment=Development' },
             program = function()
-              local path = getDLLPath()
-              print('DLL Path: ' .. path)
-              return path
+              return find_dap_dll()
             end,
             env = {
               ASPNETCORE_ENVIRONMENT = function()
@@ -219,9 +240,7 @@ return {
               end,
             },
             cwd = function()
-              local wd = getWorkspace()
-              print('WD: ' .. wd)
-              return wd
+              return find_sln_root()
             end,
           },
           --   {
