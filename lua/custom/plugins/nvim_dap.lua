@@ -12,12 +12,19 @@
 --       get MAC-mini working
 --       auto switch config (maybe)
 
+-- Credit for setup
+-- https://aaronbos.dev/posts/debugging-csharp-neovim-nvim-dap
+-- https://github.com/Samsung/netcoredbg
+-- https://blog.coderscoffeehouse.com/tech/2022-10-26-dotnet-debugging-in-vim-using-apple-silicon/
+-- Also TJ's video
+
 --not needed for laptop, maybe make this a choice?
 return {
   {
     -- Mac Mini only
-    --'Cliffback/netcoredbg-macOS-arm64.nvim',
-    'mfussenegger/nvim-dap',
+    'Cliffback/netcoredbg-macOS-arm64.nvim',
+    -- All other Linux based
+    -- 'mfussenegger/nvim-dap',
     dependencies = {
       'mfussenegger/nvim-dap',
       'leoluz/nvim-dap-go',
@@ -117,80 +124,11 @@ return {
       --  },
       --}
 
-      -- Credit for setup
-      -- https://aaronbos.dev/posts/debugging-csharp-neovim-nvim-dap
-      -- Also TJ's video
-
       local coreclr = vim.fn.exepath 'netcoredbg'
       print(coreclr)
       local dotnet = vim.fn.exepath 'dotnet'
 
-      local workspace = ''
-      local currentNetVer = ''
-      local projName = ''
-
-      -- Prompts the user to provide the name of the project
-      -- C# / .NET specific if you have a solution set up
-      -- Specifically asking for the project that the debugger should start from
-      -- local getProjName = function()
-      --   if projName == '' then
-      --     projName = vim.fn.input 'Startup ProjName: '
-      --     return projName
-      --   else
-      --     return projName
-      --   end
-      -- end
-
-      -- Prompts the user to provide the workspace name for the project
-      -- this would be the root file of the solution
-      -- Again, in a .NET setup
-      -- local getWorkspace = function()
-      --   if workspace == '' then
-      --     workspace = vim.fn.input('Workspace: ', vim.fn.getcwd() .. '/', 'file')
-      --     return workspace
-      --   else
-      --     return workspace
-      --   end
-      -- end
-
-      -- just a placeholder func to get the name of the folder for the .NET
-      -- version.
-      -- This is needed in modern .NET proj's to find the binaries
-      -- local getNetVer = function()
-      --   currentNetVer = 'net8.0'
-      --   return currentNetVer
-      -- end
-
-      -- Piece everything together
-      -- Workspace path (cwd basically)
-      -- .NET version
-      -- Project Name (startup proj)
-      -- local getDLLPath = function()
-      --   if workspace == '' then
-      --     getWorkspace()
-      --   end
-      --   if currentNetVer == '' then
-      --     getNetVer()
-      --   end
-      --   if projName == '' then
-      --     getProjName()
-      --   end
-      --   local str = workspace .. projName .. '/bin/Debug/' .. currentNetVer .. '/' .. projName .. '.dll'
-      --   return str
-      -- end
-
-      -- Shortcut for searching only from the root of a project (currently only csharp)
-      -- TODO: add lang support for Go, ReactJS, etc...
-      -- local getDLLPath = function()
-      --   local conf = {
-      --     opts = require('telescope.themes').get_dropdown(),
-      --     isProj = false,
-      --     isSln = false,
-      --     isDll = true,
-      --   }
-      --   require('config.telescope.multigrep').setup(conf)
-      -- end
-
+      -- find the .sln root folder for the given file that the buffer resides in
       local find_sln_root = function()
         local bufnr = vim.api.nvim_get_current_buf()
         local bufPath = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':h')
@@ -200,6 +138,7 @@ return {
         end)
       end
 
+      -- find the .csproj root folder for the given file the buffer resides in
       local find_proj_root = function()
         local bufnr = vim.api.nvim_get_current_buf()
         local bufPath = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':h')
@@ -209,6 +148,7 @@ return {
         end)
       end
 
+      -- find the project's .dll that netcoredbg will run off of
       local find_dap_dll = function()
         local path = find_proj_root()
         local dllName = vim.fn.fnamemodify(path, ':t') .. '.dll'
@@ -243,32 +183,6 @@ return {
               return find_sln_root()
             end,
           },
-          --   {
-          --     type = 'coreclr',
-          --     --justMycode = false,
-          --     stopAtEntry = false,
-          --     name = 'launch - netcoredbg - test',
-          --     preLaunchTask = 'build',
-          --     request = 'attach',
-          --     program = '/usr/local/share/dotnet/dotnet',
-          --     processId = function()
-          --       return vim.fn.input 'Project Id: '
-          --     end,
-          --     cwd = getWorkspace(),
-          --     args = {
-          --       'exec',
-          --       '--runtimeconfig',
-          --       getWorkspace() .. 'bin/Debug/' .. getNetVer() .. '/' .. getProjName() .. '.runtimeconfig.json',
-          --       '--additionalprobingpath',
-          --       '/Users/wwmac/.nuget/packages',
-          --       '/Users/wwmac/.nuget/packages/dotnet-xunit/2.3.1/lib/netcoreapp2.0/dotnet-xunit.dll',
-          --       getDLLPath(),
-          --       '-namespace',
-          --       getProjName(),
-          --     },
-          --     env = {},
-          --     --console = 'true',
-          --   },
         }
       else
         print "couldn't find executable"
