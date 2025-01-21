@@ -11,8 +11,8 @@
 -- TODO: get non-sln files to work
 --       get MAC-mini working
 --       auto switch config (maybe)
---       change background color for debug line
 
+--not needed for laptop, maybe make this a choice?
 return {
   {
     -- Mac Mini only
