@@ -2,15 +2,11 @@
 -- uncomment the first github plugin
 -- comment out the next one
 
--- INFO: Currently works with the version of netcoredbg on laptop
--- DID NOT seem to work when building from scratch (again).
--- DIT NOT seem to work when cloning repo from the samsung repo
+-- INFO: The copy of netcoredbg present on both the laptop and mac-mini is the
+-- version that will work correctly for debugging. Not exactly sure what makes
+-- it the version that works. New build, and repo clone build from the Samsung
+-- repo did not work.
 --
--- INFO: Currently works for SLN only setups with the auto 'dll-getter'
---
--- TODO: get non-sln files to work
---       get MAC-mini working
---       auto switch config (maybe)
 
 -- Credit for setup
 -- https://aaronbos.dev/posts/debugging-csharp-neovim-nvim-dap
@@ -22,9 +18,9 @@
 return {
   {
     -- Mac Mini only
-    'Cliffback/netcoredbg-macOS-arm64.nvim',
+    -- 'Cliffback/netcoredbg-macOS-arm64.nvim',
     -- All other Linux based
-    -- 'mfussenegger/nvim-dap',
+    'mfussenegger/nvim-dap',
     dependencies = {
       'mfussenegger/nvim-dap',
       'leoluz/nvim-dap-go',
@@ -156,6 +152,14 @@ return {
         return result[1]
       end
 
+      local find_workspace_root = function()
+        local slnRoot = find_sln_root()
+        if slnRoot ~= nil and slnRoot ~= '' then
+          return slnRoot
+        end
+        return find_proj_root()
+      end
+
       if coreclr ~= '' and dotnet ~= '' then
         dap.adapters.coreclr = {
           type = 'executable',
@@ -180,7 +184,7 @@ return {
               end,
             },
             cwd = function()
-              return find_sln_root()
+              return find_workspace_root()
             end,
           },
         }
