@@ -27,3 +27,7 @@
         - may want to look at the blink.nvim for better autocomplete
             - if it can tie into when to add the using...
         - Otherwise, would probably be a great autocommand
+- [ ] Using Treesitter work on better color formatting for C#
+    - annoying callouts
+        - CONSTs
+        - class methods and classes seem to be the same color
