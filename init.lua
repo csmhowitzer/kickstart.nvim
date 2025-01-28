@@ -917,6 +917,12 @@ require('lazy').setup({
         enable_autosnippets = true,
       }
 
+      cmp.setup.filetype({ 'sql' }, {
+        sources = {
+          { name = 'vim-dadbod-completion' },
+          { name = 'buffer' },
+        },
+      })
       cmp.setup {
         snippet = {
           expand = function(args)
