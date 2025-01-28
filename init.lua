@@ -740,9 +740,10 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
+        asm_lsp = {},
         -- csharp_ls = {},
         omnisharp = {},
-        -- clangd = {},
+        clangd = {},
         gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
@@ -1127,7 +1128,22 @@ require('lazy').setup({
     dependencies = { 'nvim-treesitter/playground', 'p00f/nvim-ts-rainbow' },
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc', 'diff', 'luadoc', 'markdown_inline', 'query', 'c_sharp', 'json' },
+      ensure_installed = {
+        'bash',
+        'c',
+        'html',
+        'lua',
+        'markdown',
+        'vim',
+        'vimdoc',
+        'diff',
+        'luadoc',
+        'markdown_inline',
+        'query',
+        'c_sharp',
+        'json',
+        'asm',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
