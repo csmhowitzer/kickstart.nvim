@@ -18,9 +18,9 @@
 return {
   {
     -- Mac Mini only
-    'Cliffback/netcoredbg-macOS-arm64.nvim',
+    -- 'Cliffback/netcoredbg-macOS-arm64.nvim',
     -- All other Linux based
-    -- 'mfussenegger/nvim-dap',
+    'mfussenegger/nvim-dap',
     dependencies = {
       'mfussenegger/nvim-dap',
       'leoluz/nvim-dap-go',

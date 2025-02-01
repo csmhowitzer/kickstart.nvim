@@ -264,18 +264,16 @@ vim.api.nvim_create_autocmd('TermOpen', {
   end,
 })
 
-vim.keymap.set('n', '<space>st', function()
+vim.keymap.set('n', '<leader><leader>`', function()
   vim.cmd.vnew()
   vim.cmd.term()
   vim.cmd.wincmd 'J'
   vim.api.nvim_win_set_height(0, 15)
 end)
 -- TODO: We want to make one that opens a new term in a new tab
-vim.keymap.set('n', '<space>st', function()
-  vim.cmd.vnew()
+vim.keymap.set('n', '<leader>`', function()
+  vim.cmd.tabnew()
   vim.cmd.term()
-  vim.cmd.wincmd 'J'
-  vim.api.nvim_win_set_height(0, 15)
 end)
 
 -- [[ Install `lazy.nvim` plugin manager ]]
@@ -740,12 +738,13 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        asm_lsp = {},
+        --asm_lsp = {},
         -- csharp_ls = {},
         omnisharp = {},
+        --roslyn = {},
         clangd = {},
         gopls = {},
-        -- pyright = {},
+        pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -1149,6 +1148,7 @@ require('lazy').setup({
         'c_sharp',
         'json',
         'asm',
+        'python',
       },
       -- Autoinstall languages that are not installed
       auto_install = true,
