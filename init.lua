@@ -847,8 +847,8 @@ require('lazy').setup({
       },
       formatters = {
         csharpier = {
-          command = '/Users/brandonholbert/.dotnet/tools/dotnet-csharpier',
-          exe = '/Users/brandonholbert/.dotnet/tools/dotnet-csharpier',
+          command = '~/.dotnet/tools/dotnet-csharpier',
+          exe = '~/.dotnet/tools/dotnet-csharpier',
         },
       },
     },
