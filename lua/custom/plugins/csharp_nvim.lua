@@ -54,7 +54,10 @@ return {
       }
       vim.keymap.set('n', '<leader>dbg', function()
         require('csharp').debug_project()
-      end)
+      end, { desc = '[D]e[b]u[g] project' })
+      vim.keymap.set('n', '<leader>gd', function()
+        require('csharp').go_to_definition()
+      end, { desc = '[G]oto [D]efinition (Roslyn)' })
     end,
   },
 }

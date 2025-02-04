@@ -19,6 +19,8 @@ vim.api.nvim_create_autocmd({ 'BufEnter' }, {
   pattern = '*.cs',
   callback = function()
     local slnPath = find_sln_root()
-    vim.api.nvim_set_current_dir(slnPath)
+    if slnPath ~= nil and slnPath ~= '' then
+      vim.api.nvim_set_current_dir(slnPath)
+    end
   end,
 })
