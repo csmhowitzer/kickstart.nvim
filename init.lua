@@ -1043,6 +1043,7 @@ require('lazy').setup({
     -- this function is used to update any custom color changes for my personal tastes
     config = function()
       require('catppuccin').setup {
+        flavour = 'mocha',
         -- INFO: This is how we set the comment colors to RED (#FF0000)
         -- There are many colors and can be set per theme.
         custom_highlights = function(colors)
