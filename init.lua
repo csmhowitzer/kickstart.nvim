@@ -987,6 +987,12 @@ require('lazy').setup({
           --   end
           -- end, { 'i', 's' }),
 
+          ['<C-E>'] = cmp.mapping(function()
+            if luasnip.choice_active() then
+              print 'changing choice'
+              luasnip.change_choice(1)
+            end
+          end, { 'i', 's' }),
           ['<C-L>'] = cmp.mapping(function()
             if luasnip.expand_or_locally_jumpable() then
               print 'expanding snippet'
