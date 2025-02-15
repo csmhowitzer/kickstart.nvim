@@ -29,6 +29,11 @@ local formatText = function(data)
   return ret
 end
 
+local run_on_exit = function()
+  vim.cmd [[e]]
+  vim.cmd [[LspRestart]]
+end
+
 local dotnetCmd = function(command)
   vim.fn.jobstart(command, {
     stdout_buffered = true,
@@ -36,6 +41,9 @@ local dotnetCmd = function(command)
       vim.notify(formatText(data), vim.log.levels.INFO, {
         title = 'DotNet CLI Message',
       })
+    end,
+    on_exit = function()
+      run_on_exit()
     end,
   })
 end
@@ -68,3 +76,20 @@ vim.keymap.set('n', '<leader>dap', function()
     executeBuild(addPackageCmd)
   end)
 end, { desc = '[B]uild Solution' })
+
+-- keymaps that are CS only
+-- keymaps that aren't CLI functions
+vim.api.nvim_create_autocmd('FileType', {
+  group = vim.api.nvim_create_augroup('CS_Only_Keymaps', {
+    clear = true,
+  }),
+  pattern = { '*.cs', '*.csproj', '*.sln' },
+  callback = function()
+    vim.keymap.set('n', '<leader>gd', function()
+      require('csharp').go_to_definition()
+    end, { desc = '[G]oto [D]efinition (Roslyn)' })
+    vim.keymap.set('n', '<leader>dbg', function()
+      require('csharp').debug_project()
+    end, { desc = '[D]e[b]u[g] project' })
+  end,
+})

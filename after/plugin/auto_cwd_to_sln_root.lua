@@ -11,7 +11,7 @@ local find_sln_root = function()
   end)
 end
 
--- autocommand
+-- autocommand .cs files
 vim.api.nvim_create_autocmd({ 'BufEnter' }, {
   group = vim.api.nvim_create_augroup('CS_Cwd_Switch', {
     clear = true,
@@ -21,6 +21,21 @@ vim.api.nvim_create_autocmd({ 'BufEnter' }, {
     local slnPath = find_sln_root()
     if slnPath ~= nil and slnPath ~= '' then
       vim.api.nvim_set_current_dir(slnPath)
+    end
+  end,
+})
+
+-- autocommand .md files
+vim.api.nvim_create_autocmd({ 'BufEnter' }, {
+  group = vim.api.nvim_create_augroup('MD_Cwd_Switch', {
+    clear = true,
+  }),
+  pattern = '*.md',
+  callback = function()
+    local bufnr = vim.api.nvim_get_current_buf()
+    local path = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':h')
+    if path ~= nil and path ~= '' then
+      vim.api.nvim_set_current_dir(path)
     end
   end,
 })
