@@ -5,8 +5,10 @@ return {
       {
         '==',
         function()
-          local width = 70
-          local height = 40
+          local oneThird = math.floor(vim.o.columns / 3)
+          local maxWW = 100
+          local width = oneThird < maxWW and oneThird or maxWW
+          local height = vim.api.nvim_win_get_height(0) - 3
           Snacks.scratch {
             win = {
               row = 1,
