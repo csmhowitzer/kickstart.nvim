@@ -121,7 +121,7 @@ return {
       --}
 
       local coreclr = vim.fn.exepath 'netcoredbg'
-      print(coreclr)
+      --print(coreclr)
       local dotnet = vim.fn.exepath 'dotnet'
 
       -- find the .sln root folder for the given file that the buffer resides in
