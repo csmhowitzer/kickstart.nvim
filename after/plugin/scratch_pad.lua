@@ -122,6 +122,10 @@ local show_scratch_select = function()
   Snacks.scratch.select()
 end
 
+local delete_scratch_file = function()
+  local buffers = Snacks.scratch.list()
+end
+
 -- keymaps
 vim.keymap.set('n', '==', function()
   toggle_scratch_pad()
