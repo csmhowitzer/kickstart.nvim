@@ -79,7 +79,7 @@ end, { desc = '[B]uild Solution' })
 
 -- keymaps that are CS only
 -- keymaps that aren't CLI functions
-vim.api.nvim_create_autocmd('FileType', {
+vim.api.nvim_create_autocmd({ 'BufEnter', 'FileType' }, {
   group = vim.api.nvim_create_augroup('CS_Only_Keymaps', {
     clear = true,
   }),
@@ -93,3 +93,6 @@ vim.api.nvim_create_autocmd('FileType', {
     end, { desc = '[D]e[b]u[g] project' })
   end,
 })
+
+-- general keymaps
+vim.keymap.set('n', '<leader>ut', vim.cmd.UndotreeToggle, { desc = '[U]ndotree [T]oggle' })
