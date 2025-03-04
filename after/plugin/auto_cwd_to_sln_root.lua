@@ -11,6 +11,14 @@ local find_sln_root = function()
   end)
 end
 
+local find_cwd_path = function()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local path = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':h')
+  if path ~= nil and path ~= '' then
+    vim.api.nvim_set_current_dir(path)
+  end
+end
+
 -- autocommand .cs files
 vim.api.nvim_create_autocmd({ 'BufEnter' }, {
   group = vim.api.nvim_create_augroup('CS_Cwd_Switch', {
@@ -25,6 +33,17 @@ vim.api.nvim_create_autocmd({ 'BufEnter' }, {
   end,
 })
 
+-- autocommand .cs files
+vim.api.nvim_create_autocmd({ 'BufEnter' }, {
+  group = vim.api.nvim_create_augroup('FE_Cwd_Switch', {
+    clear = true,
+  }),
+  pattern = '*.js, *.jsx, *.ts, *.tsx',
+  callback = function()
+    find_cwd_path()
+  end,
+})
+
 -- autocommand .md files
 vim.api.nvim_create_autocmd({ 'BufEnter' }, {
   group = vim.api.nvim_create_augroup('MD_Cwd_Switch', {
@@ -32,10 +51,6 @@ vim.api.nvim_create_autocmd({ 'BufEnter' }, {
   }),
   pattern = '*.md',
   callback = function()
-    local bufnr = vim.api.nvim_get_current_buf()
-    local path = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':h')
-    if path ~= nil and path ~= '' then
-      vim.api.nvim_set_current_dir(path)
-    end
+    find_cwd_path()
   end,
 })
