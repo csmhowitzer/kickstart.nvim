@@ -778,6 +778,9 @@ require('lazy').setup({
         ts_ls = {
           handlers = handlers,
         },
+        volar = {
+          handlers = handlers,
+        },
 
         lua_ls = {
           handlers = handlers,

@@ -38,7 +38,7 @@ vim.api.nvim_create_autocmd({ 'BufEnter' }, {
   group = vim.api.nvim_create_augroup('FE_Cwd_Switch', {
     clear = true,
   }),
-  pattern = '*.js, *.jsx, *.ts, *.tsx',
+  pattern = '*.js, *.jsx, *.ts, *.tsx, *.vue',
   callback = function()
     find_cwd_path()
   end,
