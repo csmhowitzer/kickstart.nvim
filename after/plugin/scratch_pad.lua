@@ -134,3 +134,5 @@ end, { desc = 'Toggle Scratch Buffer' })
 vim.keymap.set('n', '===', function()
   show_scratch_select()
 end, { desc = 'Select Scratch Buffer' })
+
+vim.api.nvim_set_hl(0, 'SnacksDashboardHeader', { fg = '#a6d189' })
