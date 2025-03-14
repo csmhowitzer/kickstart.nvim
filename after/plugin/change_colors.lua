@@ -14,9 +14,10 @@ end
 function ToggleDark()
   -- we want to change transparent background
 
-  vim.api.nvim_set_hl(0, 'Normal', { bg = '#1e1e2e' })
-  vim.api.nvim_set_hl(0, 'NormalFloat', { bg = '#1e1e2e' })
-  vim.api.nvim_set_hl(0, 'TelescopeNormal', { bg = '#1e1e2e' })
+  -- catppuccin palletttte original bg color #1e1e2e
+  vim.api.nvim_set_hl(0, 'Normal', { bg = '#060609' })
+  vim.api.nvim_set_hl(0, 'NormalFloat', { bg = '#060609' })
+  vim.api.nvim_set_hl(0, 'TelescopeNormal', { bg = '#060609' })
 end
 
 vim.keymap.set('n', '<leader>tt', '<cmd>lua ToggleThru()<CR>', { desc = 'Toggle Transparent background (transparent)' })
