@@ -755,7 +755,9 @@ require('lazy').setup({
         },
         --omnisharp = {},
         --roslyn = {},
-        clangd = {},
+        clangd = {
+          filetypes = { 'c', 'cpp' },
+        },
         gopls = {
           handlers = handlers,
         },
@@ -779,6 +781,10 @@ require('lazy').setup({
           handlers = handlers,
         },
         volar = {
+          handlers = handlers,
+        },
+        protols = {
+          filetypes = { 'proto' },
           handlers = handlers,
         },
 
