@@ -33,7 +33,7 @@ vim.api.nvim_create_autocmd({ 'BufEnter' }, {
   end,
 })
 
--- autocommand .cs files
+-- autocommand front-end files
 vim.api.nvim_create_autocmd({ 'BufEnter' }, {
   group = vim.api.nvim_create_augroup('FE_Cwd_Switch', {
     clear = true,

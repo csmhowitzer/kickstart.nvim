@@ -165,5 +165,20 @@ vim.api.nvim_create_autocmd({ 'BufEnter', 'FileType' }, {
   end,
 })
 
+-- we want to create a new proto file
+--    we need to know where to place the file
+--        work off of a "Protos/" directory for default
+--    we need a file name
+--    we need a namespace
+--    we need to update the .csproj with the protobuf
+--        <Protobuf Include="Protos\greet.proto" GrpcServices="Server" />
+--
+-- we want to create a new class file
+--    we need to know where to place the file
+--    we need the class name (file name)
+--    we need the namespace
+--
+-- Same for interfaces
+
 -- general keymaps
 vim.keymap.set('n', '<leader>ut', vim.cmd.UndotreeToggle, { desc = '[U]ndotree [T]oggle' })
