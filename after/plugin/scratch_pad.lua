@@ -66,6 +66,7 @@ end
 -- may want to try using scratch.open
 local open_new_scratch_pad = function(vals)
   Snacks.scratch {
+    ft = vals.ft,
     name = vals.fmtName,
     win = {
       row = 1,
@@ -99,8 +100,6 @@ local reload_scratch_pad = function(buffers, vals)
     local wd = item.cwd and vim.fn.fnamemodify(item.cwd, ':p:~') or '' -- ternary
     local fileName = get_scratch_filename(item.name)
 
-    print(item.file)
-
     if fileName == vals.name and wd == vals.path then
       item.icon = item.icon or Snacks.util.icon(item.ft, 'filetype')
       item.branch = item.branch and ('branch:%s'):format(item.branch) or ''
@@ -113,14 +112,14 @@ local reload_scratch_pad = function(buffers, vals)
   end
 
   if scratchPad ~= {} and scratchPad.name ~= nil then
-    --open_scratch(scratchPad, vals)
     return scratchPad
   else
     return nil
   end
 end
 
-local toggle_scratch_pad = function()
+local toggle_scratch_pad = function(fileType)
+  fileType = fileType or nil
   local buffers = Snacks.scratch.list()
   local bufnr = vim.api.nvim_get_current_buf()
   local vals = buffer_vals(bufnr)
@@ -130,21 +129,21 @@ local toggle_scratch_pad = function()
     pad = reload_scratch_pad(buffers, vals)
   end
 
-  -- last point left off
-  -- lua files don't change cwd
-  -- cwd is used to help retrieve unique files
-  --    my own implementation here, as the "reload" is not an original feature
-  --        using data that was already available with the plugin
-
   if pad ~= nil then
+    if fileType ~= nil then
+      pad.ft = fileType
+      pad.icon = Snacks.util.icon(fileType, 'filetype')
+    end
     vals.fmtName = pad.name
     vals.ft = pad.ft
     vals.file = pad.file
     vals.icon = pad.icon
     open_scratch(vals)
   else
+    if fileType ~= nil then
+      vals.ft = fileType
+    end
     open_new_scratch_pad(vals)
-    --open_scratch(vals)
   end
 end
 
@@ -164,5 +163,9 @@ end, { desc = 'Toggle Scratch Buffer' })
 vim.keymap.set('n', '===', function()
   show_scratch_select()
 end, { desc = 'Select Scratch Buffer' })
+
+vim.keymap.set('n', '=m', function()
+  toggle_scratch_pad 'markdown'
+end, { desc = 'Toggle Scratch Buffer (Markdown)' })
 
 vim.api.nvim_set_hl(0, 'SnacksDashboardHeader', { fg = '#a6d189' })

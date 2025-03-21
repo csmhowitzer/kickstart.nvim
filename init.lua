@@ -1088,6 +1088,7 @@ require('lazy').setup({
         custom_highlights = function(colors)
           return {
             Comment = { fg = '#FF0000' },
+            DiagnosticUnnecessary = { fg = '#dd7878' },
           }
         end,
       }
