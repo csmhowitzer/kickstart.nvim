@@ -130,6 +130,12 @@ local toggle_scratch_pad = function()
     pad = reload_scratch_pad(buffers, vals)
   end
 
+  -- last point left off
+  -- lua files don't change cwd
+  -- cwd is used to help retrieve unique files
+  --    my own implementation here, as the "reload" is not an original feature
+  --        using data that was already available with the plugin
+
   if pad ~= nil then
     vals.fmtName = pad.name
     vals.ft = pad.ft
