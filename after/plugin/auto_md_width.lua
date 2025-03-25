@@ -16,6 +16,7 @@ vim.api.nvim_create_autocmd({ 'BufEnter' }, {
   end,
 })
 
+---autocommand
 vim.api.nvim_create_autocmd({ 'BufEnter' }, {
   group = vim.api.nvim_create_augroup('CSFmtWidth', {
     clear = true,

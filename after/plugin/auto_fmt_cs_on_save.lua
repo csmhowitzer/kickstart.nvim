@@ -3,14 +3,7 @@
 --
 -- Also added a user command to format the entire solution
 
-local find_sln_root = function()
-  local bufnr = vim.api.nvim_get_current_buf()
-  local path = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':h')
-  assert(path ~= nil, 'invalid path provided')
-  return vim.fs.root(path, function(name)
-    return name:match '%.sln$' ~= nil
-  end)
-end
+local utils = require 'after.plugin.utils'
 
 local run_on_exit = function()
   vim.cmd [[e]]
@@ -42,9 +35,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
       }),
       pattern = '*.cs',
       callback = function()
-        local bufnr = vim.api.nvim_get_current_buf()
-        local bufName = vim.api.nvim_buf_get_name(bufnr)
-        run_csharpier(bufName)
+        run_csharpier(utils.get_path())
         run_csharp_nvim()
       end,
     })
@@ -52,5 +43,5 @@ vim.api.nvim_create_autocmd('LspAttach', {
 })
 
 vim.api.nvim_create_user_command('CSCleanUp', function()
-  run_csharpier(find_sln_root())
+  run_csharpier(utils.find_sln_root())
 end, {})

@@ -10,6 +10,8 @@ local addProjRefCmd = { 'dotnet', 'add', 'reference', '[PROJECT_PATH]' }
 -- the current dotnet sdk
 --local rebuildSlnCmd = { 'dotnet', 'build', '--no-incremental' }
 
+local utils = require 'after.plugin.utils'
+
 vim.notify = require 'notify'
 
 ---formats the text to bed displayed by the notify popupcomment
@@ -21,34 +23,6 @@ local formatText = function(data)
     ret = ret .. '\n' .. t
   end
   return ret
-end
-
----get path returns the current buffer's absolute folder pathcomment
----@return string
-local get_path = function()
-  local bufnr = vim.api.nvim_get_current_buf()
-  return vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':h')
-end
-
----find the .csproj root folder for the given file the buffer resides incomment
----@return string?
-local find_proj_root = function()
-  local bufPath = get_path()
-  assert(bufPath ~= nil, 'invalid path provided')
-  vim.api.nvim_set_current_dir(bufPath)
-  return vim.fs.root(bufPath, function(name)
-    return name:match '%.csproj$' ~= nil
-  end)
-end
-
----find the .sln root folder for the given buffercomment
----@return string?
-local find_sln_root = function()
-  local path = get_path()
-  assert(path ~= nil, 'invalid path provided')
-  return vim.fs.root(path, function(name)
-    return name:match '%.sln$' ~= nil
-  end)
 end
 
 ---commands that will be ran after the dotnet command is calledcomment
@@ -94,19 +68,13 @@ end
 ---@return string
 local format_selection = function(selected)
   local list = vim.split(selected, '/')
-  return string.gsub(list[#list], '.csproj', '')
-end
-
----Sets the current working directory to the current buffer
-local set_cwd = function()
-  local bufPath = get_path()
-  assert(bufPath ~= nil, 'invalid path provided')
-  vim.api.nvim_set_current_dir(bufPath)
+  local updated = string.gsub(list[#list], '.csproj', '')
+  return updated
 end
 
 ---Opens a list of C# projects to add as a reference to the current project
 local select_cs_proj_ref = function()
-  local root = find_sln_root()
+  local root = utils.find_sln_root()
   local files = vim.fs.find(function(name)
     return name:match '%.csproj$' ~= nil
   end, { limit = math.huge, type = 'file', path = root })
@@ -118,11 +86,41 @@ local select_cs_proj_ref = function()
   }, function(selected)
     if selected then
       local projName = format_selection(selected)
-      set_cwd()
+      utils.set_cwd()
       addProjRefCmd[4] = '../' .. projName .. '/' .. projName .. '.csproj'
       executeCmd(addProjRefCmd)
     end
   end)
+end
+
+local add_to_proj_file = function(projPath, line)
+  local f = utils.read_file_content(projPath)
+  if not f then
+    return
+  end
+
+  local itemGroupExists = f:match '<ItemGroup>'
+  local newContent
+  if itemGroupExists then
+    newContent = f:gsub('</ItemGroup>', line .. '\n  </ItemGroup>', 1)
+  else
+    newContent = f:gsub('</Project>', '  <ItemGroup>\n    ' .. line .. '\n  </ItemGroup>\n</Project>')
+  end
+  f = io.open(projPath, 'w')
+  if f then
+    f:write(newContent)
+    f:close()
+    vim.notify('Added line to project file', vim.log.levels.INFO, {
+      title = 'Project File Updated',
+    })
+  end
+end
+
+local add_proto_to_proj = function(name, service)
+  local projPath = utils.find_proj_root()
+  if projPath then
+    add_to_proj_file(projPath, '<Protobuf Include="Protos\\' .. name .. '.proto" GrpcServices="' .. service .. '" />')
+  end
 end
 
 vim.keymap.set('n', '<C-b>b', function()
@@ -139,11 +137,52 @@ end, { desc = '[C]lean Solution' })
 
 vim.keymap.set('n', '<leader>dap', function()
   vim.ui.input({ prompt = 'Package name: ' }, function(input)
-    addPackageCmd[3] = find_proj_root()
+    addPackageCmd[3] = utils.find_proj_root()
     addPackageCmd[5] = input
     executeCmd(addPackageCmd)
   end)
 end, { desc = '[B]uild Solution' })
+
+-- user commands
+vim.api.nvim_create_user_command('CSAddProtoByName', function()
+  vim.ui.input({ prompt = 'Protobuf name: ' }, function(input)
+    vim.ui.select({ 'Server', 'Client', 'Both' }, {
+      prompt = 'Select Service Type',
+    }, function(selected)
+      if selected then
+        add_proto_to_proj(input, selected)
+      end
+    end)
+  end)
+end, { desc = 'Add a proto file to the C# project' })
+
+-- user commands
+vim.api.nvim_create_user_command('CSAddProtoByBuf', function()
+  local bufName = utils.get_current_filename()
+  vim.ui.select({ 'Server', 'Client', 'Both' }, {
+    prompt = 'Select Service Type',
+  }, function(selected)
+    if selected then
+      add_proto_to_proj(bufName, selected)
+    end
+  end)
+end, { desc = 'Add a proto file to the C# project' })
+
+-- user commands
+vim.api.nvim_create_user_command('CSAddProtoByBufServer', function()
+  local bufName = utils.get_current_filename()
+  add_proto_to_proj(bufName, 'Server')
+end, { desc = 'Add a proto file to the C# project' })
+-- user commands
+vim.api.nvim_create_user_command('CSAddProtoByBufClient', function()
+  local bufName = utils.get_current_filename()
+  add_proto_to_proj(bufName, 'Client')
+end, { desc = 'Add a proto file to the C# project' })
+-- user commands
+vim.api.nvim_create_user_command('CSAddProtoByBufBoth', function()
+  local bufName = utils.get_current_filename()
+  add_proto_to_proj(bufName, 'Both')
+end, { desc = 'Add a proto file to the C# project' })
 
 -- keymaps that are CS only
 -- keymaps that aren't CLI functions

@@ -11,6 +11,11 @@ local test_function_query_string = [[
     )
 ]]
 
+---Finds the line number of the test function, using treesitter
+---@usage find_test_line(cs_bufnr, name)
+---@param cs_bufnr number : the buffer number
+---@param name string : the name of the test function
+---@return number|nil : the line number or nothing
 local find_test_line = function(cs_bufnr, name)
   local formatted = string.format(test_function_query_string, name)
   local query = vim.treesitter.query.parse('c_sharp', formatted)
@@ -26,12 +31,20 @@ local find_test_line = function(cs_bufnr, name)
   end
 end
 
+---Makes a key for the test entry
+---@usage make_key(entry)
+---@param entry table : the test entry
+---@return string
 local make_key = function(entry)
   assert(entry.extra.method, 'Must have name: ' .. vim.inspect(entry))
   assert(entry.extra.type, 'Must have type: ' .. vim.inspect(entry))
   return string.format('%s/%s', entry.extra.method, entry.extra.type)
 end
 
+---Adds a test to the state of the buffer
+---@usage add_csharp_test(state, entry)
+---@param state table : the state of the buffer
+---@param entry table : the test entry
 local add_csharp_test = function(state, entry)
   state.tests[make_key(entry)] = {
     name = entry.extra.method,
@@ -41,13 +54,24 @@ local add_csharp_test = function(state, entry)
   }
 end
 
+---Formats the message from the test runner
+---@usage fmtMessage(msg)
+---@param msg string : the message from the test runner
+---@return string[]
 local fmtMessage = function(msg)
   return vim.split(msg, '\\\\n')
 end
+---Formats the message for the stack trace from the test runner
+---@usage fmtStackTrace(stackTrace)
+---@param stackTrace string : the stack trace from the test runner
+---@return string[]
 local fmtStackTrace = function(stackTrace)
   return vim.split(string.gsub(stackTrace, ' in ', ' \\n--> in '), '\\n')
 end
 
+---Adds the output from the test runner to the test entry
+---@param state table : the state of the buffer
+---@param entry table : the test entry
 local add_csharp_output = function(state, entry)
   assert(state.tests, 'no tests loaded yet')
   if entry.status == 'failed' then
@@ -62,6 +86,9 @@ local add_csharp_output = function(state, entry)
   end
 end
 
+---Marks the test as successful
+---@param state table : the state of the buffer
+---@param entry table : the test entry
 local mark_success = function(state, entry)
   state.tests[make_key(entry)].success = entry.status == 'passed'
 end
@@ -70,6 +97,12 @@ local ns = vim.api.nvim_create_namespace 'live-tests'
 local group = vim.api.nvim_create_augroup('AutoTest', { clear = true })
 local hl_group = vim.api.nvim_set_hl(ns, 'PassedTest', { fg = '#2ECC71', italic = true })
 
+---Gets the output from the test runner and parses it
+---@usage output_process(bufnr, state, data)
+---@param bufnr number : the buffer number
+---@param state table : the state of the buffer
+---@param data any : the output from the test runner
+---@return nil : when there is no output
 local output_process = function(bufnr, state, data)
   if not data then
     print 'no output text to parse through'
@@ -104,6 +137,11 @@ local output_process = function(bufnr, state, data)
   end
 end
 
+---Exits the test runner and sets the diagnostics
+---@usage output_exit(bufnr, state)
+---@param bufnr number : the buffer number
+---@param state table : the state of the buffer
+---@return nil
 local output_exit = function(bufnr, state)
   local failed = {}
   for _, t in pairs(state.tests) do
@@ -124,6 +162,10 @@ local output_exit = function(bufnr, state)
   vim.diagnostic.set(ns, bufnr, failed, {})
 end
 
+---Attaches the test runner to the buffer
+---@usage attach_to_buffer(bufnr, command)
+---@param bufnr number : the buffer number
+---@param command any : the command to run the test runner
 local attach_to_buffer = function(bufnr, command)
   local state = {
     bufnr = bufnr,
