@@ -2,7 +2,7 @@
 -- On BufEnter
 --    switch the cwd to the .sln root path
 
-local utils = require 'after.plugin.utils'
+local utils = require 'config.plugins.utils'
 
 -- autocommand .cs files
 vim.api.nvim_create_autocmd({ 'BufEnter' }, {

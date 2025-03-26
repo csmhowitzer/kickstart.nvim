@@ -10,7 +10,7 @@ local addProjRefCmd = { 'dotnet', 'add', 'reference', '[PROJECT_PATH]' }
 -- the current dotnet sdk
 --local rebuildSlnCmd = { 'dotnet', 'build', '--no-incremental' }
 
-local utils = require 'after.plugin.utils'
+local utils = require 'config.plugins.utils'
 
 vim.notify = require 'notify'
 
@@ -75,6 +75,9 @@ end
 ---Opens a list of C# projects to add as a reference to the current project
 local select_cs_proj_ref = function()
   local root = utils.find_sln_root()
+  if root == nil then
+    return
+  end
   local files = vim.fs.find(function(name)
     return name:match '%.csproj$' ~= nil
   end, { limit = math.huge, type = 'file', path = root })

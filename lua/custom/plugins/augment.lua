@@ -5,53 +5,64 @@ return {
     config = function()
       vim.g.augment_disable_completions = true
 
-      --- Reads the content of a file.
-      --- @param file_path string
-      --- @return string
-      local file_content = function(file_path)
-        local file = io.open(file_path, 'r')
-        if not file then
-          return 'file not found'
-        end
-
-        local content = file:read '*all'
-        file:close()
-
-        return content
-      end
+      local utils = require 'config.plugins.utils'
+      local workspace_path = '~/.augment/workspaces.json'
 
       --- Reads the workspaces from the config file.
       --- @return any
       local read_workspaces = function()
-        local config_path = vim.fn.expand '~/.augment/workspaces.json'
-        local content = file_content(config_path)
+        local config_path = vim.fn.expand(workspace_path)
+        if not utils.file_exists(config_path) then
+          utils.create_home_dir_if_not_exists(config_path)
+        end
+        local content = utils.read_file_content(config_path)
 
         local ok, decoded = pcall(vim.json.decode, content)
         return ok and decoded or {}
       end
 
       --- Adds a workspace folder.
+      --- @param path string?
       --- @return any
-      local add_workspace_folder = function()
+      local add_workspace_folder = function(path)
         local name = vim.fn.input 'Workspace Name: '
         if name == '' then
           return
         end
-        local path = vim.fn.input 'Workspace Path: '
-        if path == '' then
-          return
+
+        local add_path = function(wksp)
+          wksp = wksp:gsub('\\', '')
+          local workspaces = read_workspaces()
+          if workspaces.workspaces == nil then
+            workspaces.workspaces = {}
+          end
+          table.insert(workspaces.workspaces, {
+            name = name,
+            path = vim.fn.resolve(wksp),
+          })
+          local json = vim.json.encode(workspaces)
+          local file = io.open(vim.fn.expand(workspace_path), 'w')
+          if file then
+            file:write(json)
+            file:close()
+            vim.notify('Workspace added successfully', vim.log.levels.INFO)
+          end
         end
-        local workspaces = read_workspaces()
-        table.insert(workspaces.workspaces or {}, {
-          name = name,
-          path = path,
-        })
-        local config_path = vim.fn.expand '~/.augment/workspaces.json'
-        local file = io.open(config_path, 'w')
-        if file then
-          file:write(vim.json.encode(workspaces))
-          file:close()
-          vim.notify('Workspace added successfully', vim.log.levels.INFO)
+
+        if path == nil or path == '' then
+          path = vim.fn.input 'Workspace Path: '
+          if path == '' then
+            return
+          end
+        else
+          path = vim.fn.fnamemodify(path, ':p:~')
+          utils.confirm_dialog(string.format('Add (%s) as a workspace path?', path), function(choice)
+            if choice then
+              add_path(path)
+            else
+              return
+            end
+          end)
         end
       end
 
@@ -74,6 +85,12 @@ return {
       --- @return any
       local ingest_workspaces = function()
         local workspaces = read_workspaces() or {}
+
+        if workspaces == nil or workspaces.workspaces == nil then
+          print 'No Augment workspaces configured'
+          return
+        end
+
         local folders = {}
         for _, workspace in ipairs(workspaces.workspaces) do
           table.insert(folders, workspace.path)
@@ -98,7 +115,7 @@ return {
 
       vim.keymap.set({ 'n', 'v' }, '<leader>ac', '<CMD>Augment chat<CR>', { desc = '[A]ugment [C]hat' })
       vim.keymap.set('n', '<leader>an', '<CMD>Augment chat new<CR>', { desc = '[A]ugment Chat [N]ew' })
-      vim.keymap.set('n', '<leader>at', '<CMD>Augment chat toggle<CR>', { desc = '[A]ugment Chat [T]oggle' })
+      vim.keymap.set('n', '<leader>at', '<CMD>Augment chat-toggle<CR>', { desc = '[A]ugment Chat [T]oggle' })
       vim.keymap.set('n', '<leader>asi', '<CMD>Augment signin<CR>', { desc = '[A]ugment [S]ign[I]n' })
       vim.keymap.set('n', '<leader>aso', '<CMD>Augment signout<CR>', { desc = '[A]ugment [S]ign[O]ut' })
       vim.keymap.set('n', '<leader>ast', '<CMD>Augment status<CR>', { desc = '[A]ugment [S]tatus' })
@@ -120,10 +137,24 @@ return {
       vim.keymap.set('n', '<leader>aw', function()
         add_workspace_folder()
       end, { desc = '[A]ugment Add [W]orkspace' })
+      vim.keymap.set('n', '<leader>awp', function()
+        add_workspace_folder(vim.fn.getcwd())
+      end, { desc = '[A]ugment Add [W]orkspace [P]ath' })
 
       vim.keymap.set('i', '<C-y>', function()
         Augment_Accept()
       end, { desc = 'Accept completion or Augment suggestion' })
     end,
+
+    -- vim.api.nvim_create_autocmd('ColorScheme', {
+    --   pattern = 'peachpuff',
+    --   callback = function()
+    --     vim.api.nvim_set_hl(0, 'AugmentSuggestionHighlight', {
+    --       fg = '#888888',
+    --       ctermfg = 8,
+    --       force = true,
+    --     })
+    --   end,
+    -- }),
   },
 }

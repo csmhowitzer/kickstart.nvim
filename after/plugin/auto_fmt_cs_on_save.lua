@@ -3,7 +3,7 @@
 --
 -- Also added a user command to format the entire solution
 
-local utils = require 'after.plugin.utils'
+local utils = require 'config.plugins.utils'
 
 local run_on_exit = function()
   vim.cmd [[e]]
