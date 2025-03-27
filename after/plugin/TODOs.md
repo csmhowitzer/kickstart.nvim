@@ -21,7 +21,7 @@
             - run `:PlenaryBustedFile %`
                 - "%" refers to current file
     - the idea here is to see the test output from stdout in a term window
-- [ ] Auto add **usings** to csharp files
+- [x] Auto add **usings** to csharp files
     - a very nice feature in VS and VSCode
     - On Buffer Save or as we're typing
         - may want to look at the blink.nvim for better autocomplete

@@ -1,5 +1,5 @@
--- INFO: Auto-Switch cwd when entering a new .cs file
--- On BufEnter
+-- INFO: Auto-Switch cwd when entering a new file on BufEnter.
+-- C#
 --    switch the cwd to the .sln root path
 
 local utils = require 'config.plugins.utils'
@@ -13,6 +13,7 @@ vim.api.nvim_create_autocmd({ 'BufEnter' }, {
   callback = function()
     local slnPath = utils.find_sln_root()
     if slnPath ~= nil and slnPath ~= '' then
+      utils.set_cwd(slnPath)
     end
   end,
 })
