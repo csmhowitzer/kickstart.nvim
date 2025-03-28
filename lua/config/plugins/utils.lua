@@ -9,6 +9,15 @@ function M.get_current_filename()
   return vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':t:r')
 end
 
+-- Gets the parent directory of the current buffer's path
+---@return string
+function M.get_parent_dir()
+  local path = M.get_full_path()
+  local dir = vim.fn.fnamemodify(path, ':h')
+  local pathSplit = vim.split(dir, '/')
+  return pathSplit[#pathSplit]
+end
+
 -- Get the current buffer's full path
 ---@return string
 function M.get_full_path()
@@ -145,8 +154,8 @@ function M.confirm_dialog(message, callback)
   vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, content)
 
   -- Set buffer options
-  -- vim.api.nvim_buf_set_option(bufnr, 'modifiable', false)
-  -- vim.api.nvim_buf_set_option(bufnr, 'buftype', 'nofile')
+  vim.api.nvim_set_option_value('modifiable', false, { buf = bufnr })
+  vim.api.nvim_set_option_value('buftype', 'nofile', { buf = bufnr })
 
   -- Create window
   local win_opts = {
@@ -161,7 +170,7 @@ function M.confirm_dialog(message, callback)
   local winnr = vim.api.nvim_open_win(bufnr, true, win_opts)
 
   -- Set window options
-  -- vim.api.nvim_win_set_option(winnr, 'winblend', 10)
+  vim.api.nvim_set_option_value('winblend', 10, { win = winnr })
 
   -- Handle keypress
   local close_window = function()

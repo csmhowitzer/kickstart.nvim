@@ -6,48 +6,58 @@
 ---@source nvim/lua/config/plugins/utils.lua
 local utils = require 'config.plugins.utils'
 
--- Restarts the LSP attached to the buffer
-local run_on_exit = function()
+---@class CSharpFormatter
+local M = {}
+
+-- LSP management
+function M.restart_lsp()
   vim.cmd [[e]]
   vim.cmd [[LspRestart]]
 end
 
----Runs csharpier on the current buffer
----@param path string? : the path to the file or folder to format
-local run_csharpier = function(path)
+-- Formatters
+---@param path string? Path to file or folder to format
+function M.format_with_csharpier(path)
   path = path or utils.get_path()
   vim.fn.jobstart({ 'dotnet', 'csharpier', path }, {
     stdout_buffered = true,
     on_exit = function()
-      run_on_exit()
+      M.restart_lsp()
     end,
   })
 end
 
----Adds, organizes, and removes using directives from C# files
-local run_csharp_nvim = function()
+function M.organize_usings()
   require('csharp').fix_usings()
 end
 
-vim.api.nvim_create_autocmd('LspAttach', {
-  group = vim.api.nvim_create_augroup('CSLspActions', {
-    clear = true,
-  }),
-  pattern = '*.cs',
-  callback = function()
-    vim.api.nvim_create_autocmd('BufWritePre', {
-      group = vim.api.nvim_create_augroup('CSFmtOnSave', {
-        clear = true,
-      }),
-      pattern = '*.cs',
-      callback = function()
-        run_csharpier(utils.get_path())
-        run_csharp_nvim()
-      end,
-    })
-  end,
-})
+-- Setup autocommands
+function M.setup_format_on_save()
+  vim.api.nvim_create_autocmd('LspAttach', {
+    group = vim.api.nvim_create_augroup('CSLspAction', { clear = true }),
+    pattern = '*.cs',
+    callback = function()
+      vim.api.nvim_create_autocmd('BufWritePre', {
+        group = vim.api.nvim_create_augroup('CSFmtOnSave', { clear = true }),
+        pattern = '*.cs',
+        callback = function()
+          M.format_with_csharpier()
+          M.organize_usings()
+        end,
+      })
+    end,
+  })
+end
 
-vim.api.nvim_create_user_command('CSCleanUp', function()
-  run_csharpier(utils.find_sln_root())
-end, {})
+-- User commands
+function M.setup_commands()
+  vim.api.nvim_create_user_command('CSCleanUp', function()
+    M.format_with_csharpier(utils.find_sln_root())
+  end, { desc = 'Formats C# files for a given solution' })
+end
+
+-- Initialize
+M.setup_format_on_save()
+M.setup_commands()
+
+return M

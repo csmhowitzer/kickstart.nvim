@@ -1,3 +1,4 @@
+-- Not working yet
 -- INFO: Augment Chat with persistent history using scratch pad approach
 local Snacks = require 'snacks'
 local utils = require 'config.plugins.utils'
@@ -98,18 +99,19 @@ end
 
 -- Initialize module
 function M.setup()
+  print "i'm in setup!"
   setup_history_dir()
 
   -- Commands
-  vim.api.nvim_create_user_command('AugmentChat', function()
+  vim.api.nvim_create_user_command('DisplayAugChat', function()
     display_chat()
   end, {})
 
-  vim.api.nvim_create_user_command('AugmentChatNew', function()
-    local conversation_id = vim.fn.strftime '%Y%m%d_%H%M%S'
-    display_chat(conversation_id)
-  end, {})
-
+  -- vim.api.nvim_create_user_command('AugmentChatNew', function()
+  --   local conversation_id = vim.fn.strftime '%Y%m%d_%H%M%S'
+  --   display_chat(conversation_id)
+  -- end, {})
+  --
   -- Optional: Add keymaps
   -- vim.keymap.set('n', '<leader>ac', ':AugmentChat<CR>', { desc = 'Open Augment Chat' })
   -- vim.keymap.set('n', '<leader>an', ':AugmentChatNew<CR>', { desc = 'New Augment Chat' })
@@ -127,5 +129,7 @@ function M.setup()
     end,
   })
 end
+
+M.setup()
 
 return M
