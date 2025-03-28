@@ -118,7 +118,10 @@ function M.setup()
     group = vim.api.nvim_create_augroup('AugmentChat', { clear = true }),
     pattern = 'Augment Chat',
     callback = function()
+<<<<<<< HEAD
       print 'hi!'
+=======
+>>>>>>> 28dfff0 (refactorign augment chat;')
       setup_history_dir()
       save_current_chat()
     end,
