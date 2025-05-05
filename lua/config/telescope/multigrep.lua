@@ -2,39 +2,18 @@ local pickers = require 'telescope.pickers'
 local finders = require 'telescope.finders'
 local make_entry = require 'telescope.make_entry'
 local conf = require('telescope.config').values
+local utils = require 'config.plugins.utils'
 local M = {}
-
-local find_proj_root = function(path)
-  assert(path ~= nil, 'invalid path provided')
-  return vim.fs.root(path, function(name)
-    return name:match '%.csproj$' ~= nil
-  end)
-end
-
-local find_sln_root = function(path)
-  assert(path ~= nil, 'invalid path provided')
-  return vim.fs.root(path, function(name)
-    return name:match '%.sln$' ~= nil
-  end)
-end
-
-local find_dap_dll = function(path)
-  assert(path ~= nil, 'invalid path provided')
-  return vim.fs.root(path, function(name)
-    return name:match '%.dll$' ~= nil
-  end)
-end
 
 local get_cwd = function(config)
   -- add more opts if we want to support diff project constraints
-  local bufnr = vim.api.nvim_get_current_buf()
-  local bufname = vim.api.nvim_buf_get_name(bufnr)
+  local path = utils.get_full_path()
   if config.isProj then
-    return find_proj_root(bufname)
+    return utils.find_proj_root(path)
   elseif config.isSln then
-    return find_sln_root(bufname)
+    return utils.find_sln_root(path)
   elseif config.isDll then
-    return find_dap_dll(bufname)
+    return utils.find_root '%.dll$'
   else
     return vim.uv.cwd()
   end
