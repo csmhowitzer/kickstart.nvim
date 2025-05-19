@@ -239,7 +239,7 @@ vim.keymap.set('n', '<leader><leader>x', '<cmd>source %<CR>', { desc = '[S]ource
 vim.keymap.set('n', '<leader>x', '.lua<CR>', { desc = 'Run Lua Command' })
 vim.keymap.set('v', '<leader>x', ':lua<CR>', { desc = 'Run Lua Command' })
 -- :bN is the next buffer command
-vim.keymap.set('n', '<leader>hb', '<cmd>bp<CR>', { desc = '[P]revious [B]uffer' })
+--vim.keymap.set('n', '<leader>hb', '<cmd>bp<CR>', { desc = '[P]revious [B]uffer' })
 
 -- quickfix keymaps
 -- cnext
